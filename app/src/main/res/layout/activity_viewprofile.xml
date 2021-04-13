@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/profiletoolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?attr/colorPrimary"
+        android:minHeight="?attr/actionBarSize"
+        android:theme="?attr/actionBarTheme" />
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true">
+
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/profileimage"
+            android:layout_width="125dp"
+            android:layout_height="125dp"
+
+            android:layout_alignParentTop="true"
+
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="23dp"
+            android:src="@drawable/profile" />
+
+        <TextView
+            android:id="@+id/mobilefiled"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignLeft="@+id/profilemobileview"
+            android:layout_alignStart="@+id/profilemobileview"
+            android:layout_below="@+id/profilemobileview"
+            android:text="mobile" />
+
+        <TextView
+            android:id="@+id/profilemobileview"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignLeft="@+id/profilenameview"
+            android:layout_alignStart="@+id/profilenameview"
+            android:layout_centerVertical="true"
+            android:text="(650)555-1234"
+            android:textAppearance="@style/TextAppearance.AppCompat" />
+
+        <TextView
+            android:id="@+id/emailfiled"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignLeft="@+id/profileemailview"
+            android:layout_alignStart="@+id/profileemailview"
+            android:layout_below="@+id/profileemailview"
+            android:text="Email" />
+
+
+        <TextView
+            android:id="@+id/profileemailview"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignLeft="@+id/mobilefiled"
+            android:layout_alignStart="@+id/mobilefiled"
+            android:layout_below="@+id/mobilefiled"
+            android:layout_marginTop="31dp"
+            android:text="ahamdomar@gmail.com"
+            android:textAppearance="@style/TextAppearance.AppCompat" />
+
+
+        <TextView
+            android:id="@+id/profilesep"
+            style="?android:attr/listSeparatorTextViewStyle"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_below="@+id/emailfiled"
+            android:layout_marginTop="40dp"
+            android:background="#000"
+            android:gravity="center_horizontal"
+            android:paddingTop="5dip" />
+
+        <TextView
+            android:id="@+id/profilenameview"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_above="@+id/profilemobileview"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:layout_marginBottom="31dp"
+            android:layout_marginLeft="72dp"
+            android:layout_marginStart="72dp"
+            android:text="\@AhmadOmar95"
+            android:textAppearance="@style/TextAppearance.AppCompat" />
+
+        <TextView
+            android:id="@+id/helpview"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignEnd="@+id/emailfiled"
+            android:layout_alignRight="@+id/emailfiled"
+            android:layout_alignTop="@+id/helpicon"
+            android:layout_marginTop="11dp"
+            android:text="Help "
+            android:textAppearance="@style/TextAppearance.AppCompat" />
+
+        <ImageView
+            android:id="@+id/mobileicon"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:layout_alignLeft="@+id/usericon"
+            android:layout_alignStart="@+id/usericon"
+            android:layout_below="@+id/usericon"
+            app:srcCompat="@drawable/ic_call_black_24dp" />
+
+        <ImageView
+            android:id="@+id/emailicon"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:layout_alignLeft="@+id/helpicon"
+            android:layout_alignStart="@+id/helpicon"
+            android:layout_alignTop="@+id/profileemailview"
+            app:srcCompat="@drawable/ic_email_black_24dp" />
+
+        <ImageView
+            android:id="@+id/helpicon"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:layout_alignLeft="@+id/mobileicon"
+            android:layout_alignStart="@+id/mobileicon"
+            android:layout_below="@+id/profilesep"
+            android:layout_marginTop="17dp"
+            app:srcCompat="@drawable/ic_help_black_24dp" />
+
+        <ImageView
+            android:id="@+id/usericon"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:layout_above="@+id/profilemobileview"
+            android:layout_marginBottom="17dp"
+            android:layout_marginEnd="11dp"
+            android:layout_marginRight="11dp"
+            android:layout_toLeftOf="@+id/profilemobileview"
+            android:layout_toStartOf="@+id/profilemobileview"
+            android:background="@color/accent"
+            app:srcCompat="@drawable/ic_profile" />
+
+        <ImageView
+            android:id="@+id/imageView"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:layout_alignBottom="@+id/profileimage"
+            android:layout_toEndOf="@+id/profileemailview"
+            app:srcCompat="@android:drawable/ic_menu_camera" />
+
+    </RelativeLayout>
+
+</LinearLayout>
