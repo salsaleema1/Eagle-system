@@ -28,20 +28,24 @@ import java.util.concurrent.ExecutionException;
 
 
 public class ViewProfileActivity extends AppCompatActivity {
-    public static final String TAG="ViewProfileActivity";
+
+    public static final String TAG = "ViewProfileActivity";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.activity_viewprofile);
+        setContentView(R.layout.activity_profile);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.profiletoolbar);
         setSupportActionBar(toolbar);
 
-        ImageView profileimage =(ImageView)findViewById(R.id.profileimage) ;
-        TextView usernameview = (TextView) findViewById(R.id.profilenameview);
-        TextView mobileview = (TextView) findViewById(R.id.profilemobileview);
-        TextView emailview = (TextView) findViewById(R.id.profileemailview);
+        ImageView profileimage = (ImageView) findViewById(R.id.profileUserImage);
+        TextView usernameview = (TextView) findViewById(R.id.profileUserName);
+        TextView fullName = (TextView) findViewById(R.id.profileFullName);
+        TextView mobileview = (TextView) findViewById(R.id.profilePhoneNumber);
+        TextView emailview = (TextView) findViewById(R.id.profileEmail);
+        TextView backToHome = (TextView) findViewById(R.id.backToHome);
         UserSessionManager user = new UserSessionManager(getApplicationContext());
 
 
@@ -50,58 +54,61 @@ public class ViewProfileActivity extends AppCompatActivity {
         assert emailview != null;
         assert profileimage != null;
 
-        final HashMap<String, String> userdata = user.getUserDetails();
-        if(getIntent().getStringExtra("username") == null){
-            usernameview.setText(String.format("@%s", userdata.get(UserSessionManager.KEY_NAME)));
-            mobileview.setText( userdata.get(UserSessionManager.KEY_PHONE));
-            emailview.setText( userdata.get(UserSessionManager.KEY_EMAIL));
-            String decodedImage=userdata.get(UserSessionManager.KEY_IMAGE);
-            Log.i(TAG,"decodedImage"+decodedImage);
-            if(decodedImage!= null) {
-                byte[] b = Base64.decode(decodedImage, Base64.DEFAULT);
-                Bitmap bitmap = BitmapFactory.decodeByteArray(b, 0, b.length);
-
-                //compress bitmap
-                ByteArrayOutputStream stream = new ByteArrayOutputStream();
-                final byte[] byteArray = stream.toByteArray();
-
-                profileimage.setImageBitmap(bitmap);
-
-                profileimage.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        Intent intent;
-                        intent = new Intent(getApplicationContext(), ImageViewAcivity.class);
-                        intent.putExtra("bitmap",byteArray);
-                        getApplicationContext().startActivity(intent);
-                    }
-                });
-            }
+        Intent intent = getIntent();
+        if (intent.getStringExtra(UserSessionManager.KEY_USERNAME) == null) {
+            usernameview.setText(String.format("@%s", intent.getStringExtra(UserSessionManager.KEY_USERNAME)));
+            mobileview.setText(intent.getStringExtra(UserSessionManager.KEY_PHONE));
+            emailview.setText(intent.getStringExtra(UserSessionManager.KEY_EMAIL));
+//            String decodedImage=userdata.get(UserSessionManager.KEY_IMAGE);
+//            Log.i(TAG,"decodedImage"+decodedImage);
+//            if(decodedImage!= null) {
+//                byte[] b = Base64.decode(decodedImage, Base64.DEFAULT);
+//                Bitmap bitmap = BitmapFactory.decodeByteArray(b, 0, b.length);
+//
+//                //compress bitmap
+//                ByteArrayOutputStream stream = new ByteArrayOutputStream();
+//                final byte[] byteArray = stream.toByteArray();
+//
+//                profileimage.setImageBitmap(bitmap);
+//
+//                profileimage.setOnClickListener(new View.OnClickListener() {
+//                    @Override
+//                    public void onClick(View view) {
+//                        Intent intent;
+//                        intent = new Intent(getApplicationContext(), ImageViewAcivity.class);
+//                        intent.putExtra("bitmap",byteArray);
+//                        getApplicationContext().startActivity(intent);
+//                    }
+//                });
+//            }
             if (getSupportActionBar() != null) {
-                getSupportActionBar().setTitle(userdata.get(UserSessionManager.KEY_FULLNAME));
+                getSupportActionBar().setTitle(intent.getStringExtra(UserSessionManager.KEY_FULLNAME));
                 getSupportActionBar().setDisplayHomeAsUpEnabled(true);
                 getSupportActionBar().setDisplayShowHomeEnabled(true);
             }
-        }else{
-            usernameview.setText(getIntent().getStringExtra("username"));
-            mobileview.setText(getIntent().getStringExtra("phone"));
-            emailview.setText(getIntent().getStringExtra("email"));
-            getBitmapFromURL(getIntent().getStringExtra("image"), profileimage);
+        } else {
+            usernameview.setText(getIntent().getStringExtra(UserSessionManager.KEY_USERNAME));
+            fullName.setText(getIntent().getStringExtra(UserSessionManager.KEY_FULLNAME));
+            mobileview.setText(getIntent().getStringExtra(UserSessionManager.KEY_PHONE));
+            emailview.setText(getIntent().getStringExtra(UserSessionManager.KEY_EMAIL));
+//            getBitmapFromURL(getIntent().getStringExtra("image"), profileimage);
             profileimage.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     Intent intent;
                     intent = new Intent(getApplicationContext(), ImageViewAcivity.class);
-                    intent.putExtra("image",getIntent().getStringExtra("image"));
+                    intent.putExtra("image", getIntent().getStringExtra("image"));
                     getApplicationContext().startActivity(intent);
                 }
             });
             profileimage.setImageResource(R.drawable.profile);
+
             if (getSupportActionBar() != null) {
-                getSupportActionBar().setTitle(getIntent().getStringExtra("fullname"));
+                getSupportActionBar().setTitle(getIntent().getStringExtra(UserSessionManager.KEY_FULLNAME));
                 getSupportActionBar().setDisplayHomeAsUpEnabled(true);
                 getSupportActionBar().setDisplayShowHomeEnabled(true);
             }
+            backToHome.setOnClickListener(v -> onBackPressed());
         }
     }
 
@@ -109,13 +116,14 @@ public class ViewProfileActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
-                Log.i(TAG, "onBackPressed " );
+                Log.i(TAG, "onBackPressed ");
                 onBackPressed();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
     }
+
     public void getBitmapFromURL(final String src, final ImageView profileImage) {
 
         try {
@@ -125,6 +133,7 @@ public class ViewProfileActivity extends AppCompatActivity {
 
                     super.onPreExecute();
                 }
+
                 @Override
                 // Making a request to url and getting response
                 protected Bitmap doInBackground(Void... params) {

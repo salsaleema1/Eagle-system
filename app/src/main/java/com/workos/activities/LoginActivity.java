@@ -7,21 +7,26 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
-import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
 import com.workos.R;
 import com.workos.adapters.UserSessionManager;
 import com.workos.api.UserController;
 
 
 public class LoginActivity extends AppCompatActivity {
-    private EditText userName;
-    private EditText pass;
+    private TextInputLayout userName, password;
     private Context context = this;
     private String TAG = "LoginActivity";
     private ProgressDialog progressDialog;
@@ -36,14 +41,14 @@ public class LoginActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.atoolbar);
         setSupportActionBar(toolbar);
         session = new UserSessionManager(getApplicationContext());
-        userName = (TextInputEditText) findViewById(R.id.username);
-        pass = (TextInputEditText) findViewById(R.id.password);
+        userName = (TextInputLayout) findViewById(R.id.username);
+        password = (TextInputLayout) findViewById(R.id.password);
         Button loginButton = (Button) findViewById(R.id.login);
         assert loginButton != null;
         loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                validateLogin(userName.getText().toString(), pass.getText().toString());
+                validateLogin(userName, password);
             }
         });
         TextView textView = (TextView) findViewById(R.id.signup);
@@ -67,46 +72,78 @@ public class LoginActivity extends AppCompatActivity {
 
     }
 
-    void validateLogin(String username, String password)//
-    {
-        // UserController user = new UserController();
-        UserController user = UserController.getIns();
-        UserController.init(this);
-        if (username.isEmpty()) {
+    void validateLogin(TextInputLayout username, TextInputLayout password) {
+
+        String usernameStr = username.getEditText().getText().toString();
+        String passwordStr = password.getEditText().getText().toString();
+        if (usernameStr.isEmpty()) {
             userName.setError("User name is required!");
-
-        }
-        if (password.isEmpty()) {
-            pass.setError("Password is required!");
-
-
         } else {
-            boolean loginResult = user.login(progressDialog, username, password);//get log in result from the username and password from the server
-            if (loginResult) {
-                Log.i(TAG, "log in successful");
-                //    Log.i(tag, "the resulting token is restored from preferences" + user.getToken());
-
-                session.createUserLoginSession(username);
-                Intent in = new Intent(context, MainPageActivity.class);
-                startActivity(in);
-                finish();
-            } else {
-                pass.setText("");
-                Log.i(TAG, "log in is unsuccessful");
-
-            }
+            userName.setError(null);
+            userName.setErrorEnabled(false);
+        }
+        if (passwordStr.isEmpty()) {
+            this.password.setError("Password is required!");
+        } else {
+            logIn();
         }
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    private boolean logIn() {
 
-        if (requestCode == 0) {
-            if (resultCode == RESULT_OK) {
-                this.finish();
+//        UserController userController = UserController.getIns();
+//        userController.login(null, userName,password);
 
+        String userEnteredUsername = userName.getEditText().getText().toString().trim();
+        String userEnteredPassword = password.getEditText().getText().toString().trim();
+        DatabaseReference reference = FirebaseDatabase.getInstance().getReference("users");
+
+        Query checkUser = reference.orderByChild("username").equalTo(userEnteredUsername);
+        checkUser.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.exists()) {
+
+                    userName.setError(null);
+                    userName.setErrorEnabled(false);
+
+                    String passwordFromDB = snapshot.child(userEnteredUsername).child("password").getValue(String.class);
+
+                    if (passwordFromDB != null && passwordFromDB.equals(userEnteredPassword)) {
+
+                        userName.setError(null);
+                        userName.setErrorEnabled(false);
+
+                        String usernameFromDB = snapshot.child(userEnteredUsername).child("username").getValue(String.class);
+                        String emailFromDB = snapshot.child(userEnteredUsername).child("email").getValue(String.class);
+                        String phoneNumberFromDB = snapshot.child(userEnteredUsername).child("phoneNumber").getValue(String.class);
+                        String fullNameFromDB = snapshot.child(userEnteredUsername).child("fullName").getValue(String.class);
+
+                        Intent mainPage = new Intent(getApplicationContext(), ViewProfileActivity.class);
+                        mainPage.putExtra(UserSessionManager.KEY_USERNAME, usernameFromDB);
+                        mainPage.putExtra(UserSessionManager.KEY_FULLNAME, fullNameFromDB);
+                        mainPage.putExtra(UserSessionManager.KEY_EMAIL, emailFromDB);
+                        mainPage.putExtra(UserSessionManager.KEY_PHONE, phoneNumberFromDB);
+                        startActivity(mainPage);
+
+                    } else {
+                        password.setError("Wrong password");
+                        password.requestFocus();
+                    }
+                } else {
+                    userName.setError("No such User exist");
+                    userName.requestFocus();
+                }
             }
-        }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+            }
+        });
+
+
+        Log.i(TAG, "log in is unsuccessful");
+        return false;
     }
 
     @Override

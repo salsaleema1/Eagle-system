@@ -1,12 +1,8 @@
 package com.workos.activities;
 
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Bundle;
-import android.util.Base64;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -20,7 +16,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.viewpager.widget.ViewPager;
 
 import com.google.android.material.navigation.NavigationView;
@@ -37,9 +32,6 @@ public class MainPageActivity extends AppCompatActivity
     private static final String TAG = "MainPageActivity";
 
     public Context context = this;
-    RequestHandler requestHandler = RequestHandler.getRequestHandlerInstance();
-    private BroadcastReceiver mRegistrationBroadcastReceiver;
-    private String localhost = "http://172.20.144.150:3001";//for testing
     UserSessionManager session;
 
     @Override
@@ -88,24 +80,15 @@ public class MainPageActivity extends AppCompatActivity
         tabLayout.setupWithViewPager(mViewPager);
 
 
-        UserSessionManager user = new UserSessionManager(context);
-
-        final HashMap<String, String> userdata = user.getUserDetails();
-
-        String usernametext = userdata.get(UserSessionManager.KEY_NAME);
+        Intent intent = getIntent();
+        String usernametext = intent.getStringExtra(UserSessionManager.KEY_USERNAME);
+        String emailtext = intent.getStringExtra(UserSessionManager.KEY_EMAIL);
         Log.i(TAG, "this the logged in username" + usernametext);
-        String emailtext = userdata.get(UserSessionManager.KEY_EMAIL);
         Log.i(TAG, "this the logged in username " + usernametext + " and email " + emailtext);
 
         if (usernametext != null && emailtext != null) {
             username.setText(usernametext);
             email.setText(emailtext);
-            String decodedImage = userdata.get(UserSessionManager.KEY_IMAGE);
-            if (decodedImage != null) {
-                byte[] b = Base64.decode(decodedImage, Base64.DEFAULT);
-                Bitmap bitmap = BitmapFactory.decodeByteArray(b, 0, b.length);
-                profileimage.setImageBitmap(bitmap);
-            }
         }
 
     }
@@ -153,9 +136,7 @@ public class MainPageActivity extends AppCompatActivity
     @Override
     protected void onPause() {
         super.onPause();
-
         Log.w("MainActivity", "onPause");
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(mRegistrationBroadcastReceiver);
     }
 
     @Override

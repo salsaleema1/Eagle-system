@@ -20,11 +20,9 @@ public class UserSessionManager {
     int PRIVATE_MODE = 0;
     private static final String PREF_NAME = "profilePref";
     private static final String IS_USER_LOGGED_IN = "IsUserLoggedIn";
-    public static final String KEY_NAME = "name";
+    public static final String KEY_USERNAME = "username";
     public static final String KEY_TOKEN = "authkey";
     public static final String KEY_EMAIL = "email";
-    public static final String KEY_FIRST = "first";
-    public static final String KEY_LAST = "last";
     public static final String KEY_GENDER = "gender";
     public static final String KEY_ID = "ID";
     public static final String KEY_PHONE = "phone";
@@ -40,7 +38,7 @@ public class UserSessionManager {
     public void createUserLoginSession(String name) {
 
         editor.putBoolean(IS_USER_LOGGED_IN, true);
-        editor.putString(KEY_NAME, name);
+        editor.putString(KEY_USERNAME, name);
         editor.commit();
     }
 
@@ -53,18 +51,17 @@ public class UserSessionManager {
         editor.putString(KEY_ID, userID);
         editor.commit();//commit what you want to save to sharedPreferences
     }
+
     public void saveUserImage(String userImage) {
         editor.putString(KEY_IMAGE, userImage);
         editor.commit();//commit what you want to save to sharedPreferences
     }
 
-    public void saveUserinfo(String email, String first, String last, String gender, String phone,String fullname) {
-        editor.putString(KEY_PHONE, phone);
-        editor.putString(KEY_EMAIL, email);
-        editor.putString(KEY_FIRST, first);
-        editor.putString(KEY_LAST, last);
-        editor.putString(KEY_GENDER, gender);
+    public void saveUserinfo(String username, String fullname, String email, String phone) {
+        editor.putString(KEY_USERNAME, username);
         editor.putString(KEY_FULLNAME, fullname);
+        editor.putString(KEY_EMAIL, email);
+        editor.putString(KEY_PHONE, phone);
 
         editor.commit();
     }
@@ -98,7 +95,7 @@ public class UserSessionManager {
         HashMap<String, String> user = new HashMap<String, String>();
 
         // user name
-        user.put(KEY_NAME, shpref.getString(KEY_NAME, null));
+        user.put(KEY_USERNAME, shpref.getString(KEY_USERNAME, null));
         user.put(KEY_TOKEN, shpref.getString(KEY_TOKEN, null));
         user.put(KEY_FULLNAME, shpref.getString(KEY_FULLNAME, null));
         // user email id
