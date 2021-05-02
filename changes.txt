@@ -5,7 +5,8 @@ import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
 
 public class add_user extends AppCompatActivity {
-jnknkjnlknkmk;
-jknkjnkj
-jhbjknkjlnklmnkm;km;km;m;
-    
+public void useAppContext() {
+        // Context of the app under test.
+        Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
+        assertEquals("com.workos", appContext.getPackageName());
+    }
