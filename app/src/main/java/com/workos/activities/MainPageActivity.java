@@ -9,6 +9,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
@@ -16,23 +17,40 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
+import androidx.navigation.fragment.NavHostFragment;
+import androidx.navigation.ui.AppBarConfiguration;
+import androidx.navigation.ui.NavigationUI;
 import androidx.viewpager.widget.ViewPager;
 
+import com.bumptech.glide.Glide;
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.tabs.TabLayout;
 import com.workos.R;
 import com.workos.adapters.UserSessionManager;
-import com.workos.api.RequestHandler;
 
 import java.util.HashMap;
 
 
 public class MainPageActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
+
     private static final String TAG = "MainPageActivity";
 
     public Context context = this;
+    GoogleSignInClient mGoogleSignInClient;
     UserSessionManager session;
+    NavController navController;
+    private AppBarConfiguration mAppBarConfiguration;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,13 +60,16 @@ public class MainPageActivity extends AppCompatActivity
         setSupportActionBar(toolbar);
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
 
-        RequestHandler.init(this);
         session = new UserSessionManager(getApplicationContext());
-        if (session.checkLogin())
+        HashMap<String, String> userDetails = session.getUserDetails();
+
+        if (session.checkLogin()) {
             finish();
-        else {
-            //login to server session
         }
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestEmail()
+                .build();
+        mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
 
@@ -58,8 +79,31 @@ public class MainPageActivity extends AppCompatActivity
         Log.w("MainActivity", "onCreate");
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
-        assert navigationView != null;
+        BottomNavigationView bottomNavigationView = (BottomNavigationView) findViewById(R.id.bottom_nav_view);
+
+        bottomNavigationView.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
+
+        // Passing each menu ID as a set of Ids because each
+        // menu should be considered as top level destinations.
+        mAppBarConfiguration = new AppBarConfiguration.Builder(R.id.navigation_home, R.id.navigation_issues, R.id.navigation_home).setDrawerLayout(drawer)
+                .build();
+        NavHostFragment fragmentById = (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment);
+
+        navController = fragmentById.getNavController();
+        NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
+        NavigationUI.setupWithNavController(navigationView, navController);
+        NavigationUI.setupWithNavController(bottomNavigationView, navController);
         navigationView.setNavigationItemSelectedListener(this);
+
+        Menu menu = navigationView.getMenu();
+        menu.findItem(R.id.logout).setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                signOut();
+                return false;
+            }
+        });
+
         View header = navigationView.getHeaderView(0);
         TextView username = header.findViewById(R.id.profileUserName);
         TextView email = header.findViewById(R.id.profileEmail);
@@ -71,20 +115,13 @@ public class MainPageActivity extends AppCompatActivity
                 startActivity(in);
             }
         });
-        // Set up the ViewPager with the sections adapter.
-        ViewPager mViewPager = (ViewPager) findViewById(R.id.container);
-        assert mViewPager != null;
-
-        TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
-        assert tabLayout != null;
-        tabLayout.setupWithViewPager(mViewPager);
-
-
-        Intent intent = getIntent();
-        String usernametext = intent.getStringExtra(UserSessionManager.KEY_USERNAME);
-        String emailtext = intent.getStringExtra(UserSessionManager.KEY_EMAIL);
-        Log.i(TAG, "this the logged in username" + usernametext);
-        Log.i(TAG, "this the logged in username " + usernametext + " and email " + emailtext);
+        String imageUrl = userDetails.get(UserSessionManager.KEY_IMAGE_URL);
+        if (imageUrl != null) {
+            Glide.with(this).load(imageUrl).into(profileimage);
+        }
+        String usernametext = userDetails.get(UserSessionManager.KEY_USERNAME);
+        String emailtext = userDetails.get(UserSessionManager.KEY_EMAIL);
+        Log.i(TAG, "this the logged in username : '" + usernametext + "' and email :" + emailtext);
 
         if (usernametext != null && emailtext != null) {
             username.setText(usernametext);
@@ -92,6 +129,36 @@ public class MainPageActivity extends AppCompatActivity
         }
 
     }
+
+    FragmentTransaction ft;
+
+    private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener = item -> {
+
+        switch (item.getItemId()) {
+            case R.id.navigation_projects:
+                navController.navigate(R.id.navigation_projects);
+//                ft = getSupportFragmentManager().beginTransaction();
+//                ft.replace(R.id.nav_host_fragment, currentFragment);
+//                ft.commit();
+                return true;
+            case R.id.navigation_issues:
+                navController.navigate(R.id.navigation_issues);
+
+//                currentFragment = new FragmentB();
+//                ft = getSupportFragmentManager().beginTransaction();
+//                ft.replace(R.id.nav_host_fragment, currentFragment);
+//                ft.commit();
+                return true;
+            case R.id.navigation_home:
+                navController.navigate(R.id.navigation_home);
+
+//                currentFragment+
+                return true;
+        }
+
+
+        return false;
+    };
 
     @Override
     public void onBackPressed() {
@@ -129,8 +196,6 @@ public class MainPageActivity extends AppCompatActivity
     protected void onResume() {
         super.onResume();
         Log.w("MainActivity", "onResume");
-        HashMap<String, String> user = session.getUserDetails();
-        String token = user.get(UserSessionManager.KEY_TOKEN);
     }
 
     @Override
@@ -149,6 +214,18 @@ public class MainPageActivity extends AppCompatActivity
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         return false;
+    }
+
+    private void signOut() {
+        mGoogleSignInClient.signOut()
+                .addOnCompleteListener(this, new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        Toast.makeText(MainPageActivity.this, "Signed out Successfully !!", Toast.LENGTH_LONG).show();
+                        finish();
+                    }
+                });
+        session.logoutUser();
     }
 }
 

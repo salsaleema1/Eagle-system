@@ -30,7 +30,6 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.workos.R;
 import com.workos.adapters.UserSessionManager;
-import com.workos.api.RequestHandler;
 import com.workos.models.UserModel;
 
 import java.io.ByteArrayOutputStream;
@@ -61,7 +60,6 @@ public class SignupActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        RequestHandler.init(this);
         setContentView(R.layout.activity_signup);
         Toolbar toolbar = (Toolbar) findViewById(R.id.atoolbar);
         setSupportActionBar(toolbar);
@@ -76,38 +74,8 @@ public class SignupActivity extends AppCompatActivity {
         confirmPass = (TextInputLayout) findViewById(R.id.confirmPassword);
         signup = (Button) findViewById(R.id.signup);
 
-        username.getEditText().setOnFocusChangeListener((view, focused) -> {
-            if (!focused) {
-                Pattern pattern = Pattern.compile("^(?=.{4,20}$)(?![_.'])(?!.*[_.]{2})[a-zA-Z0-9._]+(?<![_.])$");
-                if (!pattern.matcher(username.getEditText().getText()).matches()) {
-                    username.setError("Username is in incorrect format");
-                }
-            }
-        });
-        phoneNumber.getEditText().setOnFocusChangeListener(new View.OnFocusChangeListener() {
-            @Override
-            public void onFocusChange(View view, boolean focused) {
-                if (!focused) {
-                    if (!Patterns.PHONE.matcher(phoneNumber.getEditText().getText()).matches()) {
-                        phoneNumber.setError("Phone number is in incorrect format");
-                    }
-                }
-            }
-        });
-        password.getEditText().setOnFocusChangeListener((view, focused) -> {
-            if (!focused) {
-                if (password.getEditText().getText().length() < 6) {
-                    password.setError("password is too short");
-                }
-            }
-        });
-        email.getEditText().setOnFocusChangeListener((view, focused) -> {
-            if (!focused) {
-                if (!Patterns.EMAIL_ADDRESS.matcher(email.getEditText().getText()).matches()) {
-                    email.setError("Email is in incorrect format");
-                }
-            }
-        });
+        validteInput();
+
         signup.setOnClickListener(view -> {
 
             boolean allFieldsValid = true;
@@ -119,49 +87,8 @@ public class SignupActivity extends AppCompatActivity {
             String confirmPassStr = confirmPass.getEditText().getText().toString();
 
             Log.i(tag, "signup" + passStr + " " + confirmPassStr);
-            if (fullNameStr.isEmpty()) {
-                fullName.setError("This field is necessary");
-                allFieldsValid = false;
-            } else {
-                fullName.setError(null);
-                fullName.setErrorEnabled(false);
-            }
+            allFieldsValid = validateSignInInput(allFieldsValid, fullNameStr, usernameStr, emailStr, phoneNumberStr, passStr, confirmPassStr);
 
-            if (usernameStr.isEmpty()) {
-                username.setError("This field is necessary");
-                allFieldsValid = false;
-            } else {
-                username.setError(null);
-                username.setErrorEnabled(false);
-            }
-            if (emailStr.isEmpty()) {
-                email.setError("This field is necessary");
-                allFieldsValid = false;
-            } else {
-                email.setError(null);
-                email.setErrorEnabled(false);
-            }
-            if (phoneNumberStr.isEmpty()) {
-                phoneNumber.setError("This field is necessary");
-                allFieldsValid = false;
-            } else {
-                phoneNumber.setError(null);
-                phoneNumber.setErrorEnabled(false);
-            }
-            if (passStr.isEmpty()) {
-                password.setError("This field is necessary");
-                allFieldsValid = false;
-            } else {
-                password.setError(null);
-                password.setErrorEnabled(false);
-            }
-            if (confirmPassStr.isEmpty()) {
-                confirmPass.setError("This field is necessary");
-                allFieldsValid = false;
-            } else {
-                confirmPass.setError(null);
-                confirmPass.setErrorEnabled(false);
-            }
             if (allFieldsValid && passStr.equals(confirmPassStr)) {
 
 
@@ -179,6 +106,97 @@ public class SignupActivity extends AppCompatActivity {
             }
         });
 
+    }
+
+    private boolean validateSignInInput(boolean allFieldsValid, String fullNameStr, String usernameStr, String emailStr, String phoneNumberStr, String passStr, String confirmPassStr) {
+        if (fullNameStr.isEmpty()) {
+            fullName.setError("This field is necessary");
+            allFieldsValid = false;
+        } else {
+            fullName.setError(null);
+            fullName.setErrorEnabled(false);
+        }
+
+        if (usernameStr.isEmpty()) {
+            username.setError("This field is necessary");
+            allFieldsValid = false;
+        } else {
+            username.setError(null);
+            username.setErrorEnabled(false);
+        }
+        if (emailStr.isEmpty()) {
+            email.setError("This field is necessary");
+            allFieldsValid = false;
+        } else {
+            email.setError(null);
+            email.setErrorEnabled(false);
+        }
+        if (phoneNumberStr.isEmpty()) {
+            phoneNumber.setError("This field is necessary");
+            allFieldsValid = false;
+        } else {
+            phoneNumber.setError(null);
+            phoneNumber.setErrorEnabled(false);
+        }
+        if (passStr.isEmpty()) {
+            password.setError("This field is necessary");
+            allFieldsValid = false;
+        } else {
+            password.setError(null);
+            password.setErrorEnabled(false);
+        }
+        if (confirmPassStr.isEmpty()) {
+            confirmPass.setError("This field is necessary");
+            allFieldsValid = false;
+        } else {
+            confirmPass.setError(null);
+            confirmPass.setErrorEnabled(false);
+        }
+        return allFieldsValid;
+    }
+
+    private void validteInput() {
+        username.getEditText().setOnFocusChangeListener((view, focused) -> {
+            if (!focused) {
+                Pattern pattern = Pattern.compile("^(?=.{4,20}$)(?![_.'])(?!.*[_.]{2})[a-zA-Z0-9._]+(?<![_.])$");
+                if (!pattern.matcher(username.getEditText().getText()).matches()) {
+                    username.setError("Username is in incorrect format");
+                } else {
+                    username.setError(null);
+                    username.setErrorEnabled(false);
+                }
+            }
+        });
+        phoneNumber.getEditText().setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View view, boolean focused) {
+                if (!focused) {
+                    if (!Patterns.PHONE.matcher(phoneNumber.getEditText().getText()).matches()) {
+                        phoneNumber.setError("Phone number is in incorrect format");
+                    } else {
+                        phoneNumber.setError(null);
+                        phoneNumber.setErrorEnabled(false);
+                    }
+                }
+            }
+        });
+        password.getEditText().setOnFocusChangeListener((view, focused) -> {
+            if (!focused) {
+                if (password.getEditText().getText().length() < 6) {
+                    password.setError("password is too short");
+                }
+            }
+        });
+        email.getEditText().setOnFocusChangeListener((view, focused) -> {
+            if (!focused) {
+                if (!Patterns.EMAIL_ADDRESS.matcher(email.getEditText().getText()).matches()) {
+                    email.setError("Email is in incorrect format");
+                } else {
+                    email.setError(null);
+                    email.setErrorEnabled(false);
+                }
+            }
+        });
     }
 
     public void onLoginClick(View view) {

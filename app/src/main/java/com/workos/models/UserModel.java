@@ -6,7 +6,7 @@ package com.workos.models;
 
 public class UserModel {
 
-    String fullName, username, email, password, phoneNumber;
+    String fullName, username, email, password, phoneNumber,role;
 
     public UserModel() {
     }

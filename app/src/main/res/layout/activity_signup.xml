@@ -198,16 +198,10 @@
                 android:layout_marginBottom="30dp"
                 android:gravity="center">
 
-                <ImageView
+                <com.google.android.gms.common.SignInButton
+                    android:id="@+id/signInWithGoogle"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:src="@drawable/ic_facebook" />
-
-                <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="20dp"
-                    android:src="@drawable/ic_google_plus" />
+                    android:layout_height="wrap_content" />
             </LinearLayout>
 
 
