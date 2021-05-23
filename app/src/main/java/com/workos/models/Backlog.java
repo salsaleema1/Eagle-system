@@ -6,7 +6,7 @@ public class Backlog {
 
     String title;
     int numberOfTickets;
-    List<Ticket> tickets;
+    List<Task> tasks;
 
 
     public String getTitle() {
@@ -25,11 +25,11 @@ public class Backlog {
         this.numberOfTickets = numberOfTickets;
     }
 
-    public List<Ticket> getTickets() {
-        return tickets;
+    public List<Task> getTickets() {
+        return tasks;
     }
 
-    public void setTickets(List<Ticket> tickets) {
-        this.tickets = tickets;
+    public void setTickets(List<Task> tasks) {
+        this.tasks = tasks;
     }
 }

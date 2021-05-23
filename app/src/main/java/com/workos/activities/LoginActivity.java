@@ -151,8 +151,6 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
 
-
-
     private void validateLogin(TextInputLayout username, TextInputLayout password) {
 
         String usernameStr = username.getEditText().getText().toString();
@@ -196,7 +194,7 @@ public class LoginActivity extends AppCompatActivity {
                         String emailFromDB = snapshot.child(userEnteredUsername).child("email").getValue(String.class);
                         String phoneNumberFromDB = snapshot.child(userEnteredUsername).child("phoneNumber").getValue(String.class);
                         String fullNameFromDB = snapshot.child(userEnteredUsername).child("fullName").getValue(String.class);
-                        session.createUserLoginSession(usernameFromDB, fullNameFromDB, emailFromDB, phoneNumberFromDB, passwordFromDB, String.valueOf(new Date()),null);
+                        session.createUserLoginSession(usernameFromDB, fullNameFromDB, emailFromDB, phoneNumberFromDB, passwordFromDB, String.valueOf(new Date()), null);
                         redirectToMainPage();
                     } else {
                         password.setError("Wrong password");
@@ -215,11 +213,13 @@ public class LoginActivity extends AppCompatActivity {
 
         Log.i(TAG, "log in is unsuccessful");
     }
+
     private void redirectToMainPage() {
         Intent mainPage = new Intent(getApplicationContext(), MainPageActivity.class);
         startActivity(mainPage);
         finish();
     }
+
     @Override
     protected void onResume() {
         super.onResume();

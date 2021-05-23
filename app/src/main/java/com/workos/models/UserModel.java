@@ -1,10 +1,12 @@
 package com.workos.models;
 
+import java.io.Serializable;
+
 /**
  * Created by Murad on 07/10/2017.
  */
 
-public class UserModel {
+public class UserModel implements Serializable {
 
     String fullName, username, email, password, phoneNumber,role;
 

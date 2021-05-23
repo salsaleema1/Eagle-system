@@ -1,7 +1,8 @@
 package com.workos.models;
 
 import java.io.Serializable;
-import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
 public class Project implements Serializable {
 
@@ -9,6 +10,7 @@ public class Project implements Serializable {
     String projectDescription;
     String projectImagePath;
     Backlog backlog;
+    List<Task> tasks;
 
     public Project() {
     }
@@ -17,7 +19,6 @@ public class Project implements Serializable {
         this.projectImagePath = projectImagePath;
         this.projectName = projectName;
         this.projectDescription = projectDescription;
-        this.backlog = initBacklog();
     }
 
     public Project(String projectName) {
@@ -56,16 +57,39 @@ public class Project implements Serializable {
         this.backlog = backlog;
     }
 
-    Backlog initBacklog() {
-        Backlog backlog = new Backlog();
-        backlog.setNumberOfTickets(1);
-        ArrayList<Ticket> tickets = new ArrayList<>();
-        Ticket ticket = new Ticket();
-        ticket.setTitle("Test Ticket");
-        tickets.add(ticket);
-        backlog.setTickets(tickets);
-        backlog.setTitle("Test Backlog");
-        return backlog;
+    public List<Task> getTasks() {
+        return tasks;
     }
 
+    public void setTasks(List<Task> tasks) {
+        this.tasks = tasks;
+    }
+
+    @Override
+    public String toString() {
+        return "Project{" +
+                "projectName='" + projectName + '\'' +
+                ", projectDescription='" + projectDescription + '\'' +
+                ", projectImagePath='" + projectImagePath + '\'' +
+                ", backlog=" + backlog +
+                ", tasks=" + tasks +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Project project = (Project) o;
+        return Objects.equals(projectName, project.projectName) &&
+                Objects.equals(projectDescription, project.projectDescription) &&
+                Objects.equals(projectImagePath, project.projectImagePath) &&
+                Objects.equals(backlog, project.backlog) &&
+                Objects.equals(tasks, project.tasks);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(projectName, projectDescription, projectImagePath, backlog, tasks);
+    }
 }

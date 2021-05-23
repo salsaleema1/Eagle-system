@@ -39,4 +39,12 @@
     <string name="title_issues">Issues</string>
     <string name="title_Projects">Projects</string>
     <string name="title_activity_side_navigation">sideNavigationActivity</string>
+
+    <string-array name="task_status_array">
+        <item>Backlog</item>
+        <item>InProgress</item>
+        <item>Pending</item>
+        <item>Testing</item>
+        <item>Done</item>
+    </string-array>
 </resources>

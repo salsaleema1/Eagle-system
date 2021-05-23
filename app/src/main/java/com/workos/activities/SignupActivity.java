@@ -99,6 +99,13 @@ public class SignupActivity extends AppCompatActivity {
 
                 reference.child(usernameStr).setValue(userModel);
 
+                session.createUserLoginSession(userModel.getUsername(), userModel.getFullName(),
+                        userModel.getEmail(), userModel.getPhoneNumber(), userModel.getPassword(), String.valueOf(new Date()), null);
+
+                Intent mainPage = new Intent(getApplicationContext(), MainPageActivity.class);
+                startActivity(mainPage);
+                finish();
+
                 // Bitmap bitmap = BitmapFactory.decodeByteArray(newUser.getImageData(), 0, newUser.getImageData().length);
                 // profileImg.setImageBitmap(bitmap);
             } else {

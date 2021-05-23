@@ -36,6 +36,8 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.tabs.TabLayout;
 import com.workos.R;
+import com.workos.adapters.ProjectsManager;
+import com.workos.adapters.TasksManager;
 import com.workos.adapters.UserSessionManager;
 
 import java.util.HashMap;
@@ -55,6 +57,10 @@ public class MainPageActivity extends AppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        ProjectsManager.setContext(context);
+        TasksManager.setContext(context);
+
         setContentView(R.layout.navigation_view);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -85,7 +91,7 @@ public class MainPageActivity extends AppCompatActivity
 
         // Passing each menu ID as a set of Ids because each
         // menu should be considered as top level destinations.
-        mAppBarConfiguration = new AppBarConfiguration.Builder(R.id.navigation_home, R.id.navigation_issues, R.id.navigation_home).setDrawerLayout(drawer)
+        mAppBarConfiguration = new AppBarConfiguration.Builder(R.id.navigation_projects, R.id.navigation_issues, R.id.navigation_home).setDrawerLayout(drawer)
                 .build();
         NavHostFragment fragmentById = (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment);
 
@@ -129,8 +135,6 @@ public class MainPageActivity extends AppCompatActivity
         }
 
     }
-
-    FragmentTransaction ft;
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener = item -> {
 
@@ -176,20 +180,6 @@ public class MainPageActivity extends AppCompatActivity
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
         return true;
-    }
-
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
     }
 
     @Override

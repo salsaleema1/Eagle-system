@@ -15,7 +15,9 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".activities.ProjectBacklogActivity"/>
+        <activity android:name=".activities.CreateTaskActivity"></activity>
+        <activity android:name=".activities.CreateProjectActivity" />
+        <activity android:name=".activities.ProjectTasksActivity" />
         <activity android:name=".activities.DefineUserRoleActivity" />
         <activity android:name=".activities.TaskViewActivity" />
         <activity android:name=".activities.EditProfileActivity" />

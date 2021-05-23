@@ -4,13 +4,13 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:id="@+id/projectsFragment"
-    tools:context=".ui.projects.ProjectsFragment">
+    tools:context=".activities.ProjectTasksActivity">
 
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/projectsList"
+       <androidx.recyclerview.widget.RecyclerView
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        android:id="@+id/tasksList"
+        />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>
