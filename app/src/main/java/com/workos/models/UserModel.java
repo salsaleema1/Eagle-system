@@ -1,139 +1,63 @@
 package com.workos.models;
 
+import java.io.Serializable;
+
 /**
  * Created by Murad on 07/10/2017.
  */
 
-public class UserModel {
+public class UserModel implements Serializable {
 
-    private String username;
-    private String gender;
-    private byte[] imageData;
-
-    private String email;
-
-    public String getImagePath() {
-        return imagePath;
-    }
-
-    public byte[] getImageData() {
-        return imageData;
-    }
-
-    public void setImageData(byte[] imageData) {
-        this.imageData = imageData;
-    }
-
-    public void setImagePath(String imagePath) {
-        this.imagePath = imagePath;
-    }
-
-    private String password;
-    private String phonenumber;
-    private String firstname;
-    private String lastname;
-    private int user_id;
-    private String imagePath;
-    private String ImageString;
-    private boolean chatCreated=false;
-    private int chatID;
-
-    public int getChatID() {
-        return chatID;
-    }
-
-    public void setChatID(int chatID) {
-        this.chatID = chatID;
-    }
-    public String getFullName(){
-        return firstname+" "+lastname;
-    }
-    public boolean isChatCreated() {
-        return chatCreated;
-
-    }
-
-    public void setChatCreated(boolean chatCreated) {
-        this.chatCreated = chatCreated;
-    }
-
-    public String getImageString() {
-        return ImageString;
-    }
-
-    public void setImageString(String setImageString) {
-        this.ImageString = setImageString;
-    }
-
-
-    public String getGender() {
-        return gender;
-    }
-
-    public void setGender(String gender) {
-        this.gender = gender;
-    }
+    String fullName, username, email, password, phoneNumber,role;
 
     public UserModel() {
-
     }
 
-    public void setPhonenumber(String phonenumber) {
-        this.phonenumber = phonenumber;
+    public UserModel(String fullName, String username, String email, String password, String phoneNumber) {
+        this.fullName = fullName;
+        this.username = username;
+        this.email = email;
+        this.password = password;
+        this.phoneNumber = phoneNumber;
     }
 
-    public void setFirstname(String firstname) {
-        this.firstname = firstname;
+    public String getFullName() {
+        return fullName;
     }
 
-    public void setLastname(String lastname) {
-        this.lastname = lastname;
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
     }
-
-    public void setUser_id(int user_id) {
-        this.user_id = user_id;
-    }
-
-    public String getPhonenumber() {
-        return phonenumber;
-    }
-
-    public String getFirstname() {
-        return firstname;
-    }
-
-    public String getLastname() {
-        return lastname;
-    }
-
-    public int getUser_id() {
-        return user_id;
-    }
-
 
     public String getUsername() {
         return username;
     }
 
-
     public void setUsername(String username) {
         this.username = username;
     }
 
+    public String getEmail() {
+        return email;
+    }
 
     public void setEmail(String email) {
         this.email = email;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
     }
 
     public String getPassword() {
         return password;
     }
 
-    public String getEmail() {
-        return email;
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
     }
 }

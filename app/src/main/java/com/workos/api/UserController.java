@@ -2,6 +2,7 @@ package com.workos.api;
 
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -10,6 +11,16 @@ import android.util.Base64;
 import android.util.Log;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+
+import com.google.android.material.textfield.TextInputLayout;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
+import com.workos.activities.MainPageActivity;
 import com.workos.adapters.UserSessionManager;
 import com.workos.models.UserModel;
 
@@ -53,44 +64,51 @@ public class UserController {
     }
 
     //get user info forom server through request handler
-    public boolean login(ProgressDialog progressDialog, String username, String pass) {
-        boolean result = false;
+    public boolean login(ProgressDialog progressDialog, TextInputLayout userName, TextInputLayout password) {
 
-        //use the request handler to connect to the server and get the response of the login
-        String response = requestHandler.login(progressDialog, username, pass);
+        String userEnteredUsername = userName.getEditText().getText().toString().trim();
+        String userEnteredPassword = password.getEditText().getText().toString().trim();
+        DatabaseReference reference = FirebaseDatabase.getInstance().getReference("users");
 
-        try {
-            if (response != null) {
-                //jason objet to parse the jason response string
-                JSONObject jsonResponce = new JSONObject(response);
-                // from the return value of the response, get the value of success (true or false)
-                if ((Boolean) jsonResponce.get("success")) {
-                    //   Log.i(tag, "the logged in user ID :" + jsonResponce.get("userID").toString());
-                    //get the authintication token and save it in the sharedpreferences
-                    UserSessionManager sessionManager = new UserSessionManager(context);
-                    sessionManager.saveToken(jsonResponce.get("token").toString());
+        final boolean[] result = {false};
+        Query checkUser = reference.orderByChild("username").equalTo(userEnteredUsername);
+        checkUser.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.exists()) {
 
-                    JSONObject userinfo = jsonResponce.getJSONObject("userinfo");
-                    Log.i(tag, "the logged in user ID :" + userinfo.getString("userID"));
-                    sessionManager.saveUserID(userinfo.getString("userID"));
+                    userName.setError(null);
+                    userName.setErrorEnabled(false);
 
-                    sessionManager.saveUserinfo(userinfo.getString("email"), userinfo.getString("first"),
-                            userinfo.getString("last"), userinfo.getString("gender"), userinfo.getString("phone")
-                            , userinfo.getString("first") + " " + userinfo.getString("last"));
-                    //sessionManager.saveUserID(jsonResponce.get("userID").toString());
-                    Log.i(tag,"user frofile image "+userinfo.getString("image"));
+                    String passwordFromDB = snapshot.child(userEnteredUsername).child("password").getValue(String.class);
 
-                    saveImageAsString(userinfo.getString("image"));
-                    result = true;
+                    if (passwordFromDB != null && passwordFromDB.equals(userEnteredPassword)) {
 
+                        userName.setError(null);
+                        userName.setErrorEnabled(false);
+
+                        String usernameFromDB = snapshot.child(userEnteredUsername).child("username").getValue(String.class);
+                        String emailFromDB = snapshot.child(userEnteredUsername).child("email").getValue(String.class);
+                        String phoneNumberFromDB = snapshot.child(userEnteredUsername).child("phoneNumber").getValue(String.class);
+                        String fullNameFromDB = snapshot.child(userEnteredUsername).child("fullName").getValue(String.class);
+                        result[0] = true;
+                    } else {
+                        password.setError("Wrong password");
+                        password.requestFocus();
+                    }
                 } else {
-                    Toast.makeText(context, jsonResponce.get("message").toString(), Toast.LENGTH_SHORT).show();
+                    userName.setError("No such User exist");
+                    userName.requestFocus();
                 }
             }
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        return result;
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+            }
+        });
+
+
+        return result[0];
     }
 
     //now you can get the authentication token from User Controller
@@ -105,7 +123,7 @@ public class UserController {
     }
 
 
-    public void saveImageAsString(final String src ) {
+    public void saveImageAsString(final String src) {
 
         try {
             new AsyncTask<Void, Void, Bitmap>() {
@@ -113,6 +131,7 @@ public class UserController {
                 protected void onPreExecute() {
                     super.onPreExecute();
                 }
+
                 @Override
                 // Making a request to url and getting response
                 protected Bitmap doInBackground(Void... params) {
@@ -137,7 +156,7 @@ public class UserController {
                 protected void onPostExecute(Bitmap result) {
                     super.onPostExecute(result);
                     UserSessionManager sessionManager = new UserSessionManager(context);
-                    if(result!=null) {
+                    if (result != null) {
                         ByteArrayOutputStream baos = new ByteArrayOutputStream();
                         result.compress(Bitmap.CompressFormat.JPEG, 100, baos);
                         byte[] b = baos.toByteArray();
@@ -157,6 +176,7 @@ public class UserController {
 
 
     }
+
     public boolean deleteUser(UserModel user) {
         return true;
     }

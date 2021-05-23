@@ -1,8 +1,6 @@
 package com.workos.activities;
 
-import android.Manifest;
 import android.app.Activity;
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.CursorLoader;
 import android.content.DialogInterface;
@@ -16,25 +14,22 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
-import android.util.Base64;
 import android.util.Log;
+import android.util.Patterns;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.RadioButton;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 
 import com.google.android.material.textfield.TextInputLayout;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.workos.R;
 import com.workos.adapters.UserSessionManager;
-import com.workos.api.RequestHandler;
 import com.workos.models.UserModel;
 
 import java.io.ByteArrayOutputStream;
@@ -48,118 +43,167 @@ import java.util.regex.Pattern;
 public class SignupActivity extends AppCompatActivity {
     private static final int MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 0;
     private static final int MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE = 1;
-    private TextInputLayout username, email, phonenumber;
-    private TextInputLayout pass, confirmPass, firstName, lastName;
-    private String passStr;
-    private String confirmPassStr;
+    private TextInputLayout fullName, username, email, phoneNumber, password, confirmPass;
     private String tag = "SignupActivity";
     private ImageView profileImg;
     private String pathToImage;// get the path of the image on the device to upload it
     private String mCurrentPhotoPath;//path of the image in case of API >=24
     String encodedString;
-    private ProgressDialog progressDialog;
-    private String imgString;
-    private Context context = this;
-
+    Button signup;
     private int REQUEST_CAMERA = 1, SELECT_IMAGE = 0;
 
     UserSessionManager session;
 
+    FirebaseDatabase rootNode;
+    DatabaseReference reference;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        RequestHandler.init(this);
         setContentView(R.layout.activity_signup);
         Toolbar toolbar = (Toolbar) findViewById(R.id.atoolbar);
         setSupportActionBar(toolbar);
 
         session = new UserSessionManager(getApplicationContext());
 
+        fullName = (TextInputLayout) findViewById(R.id.fullName);
         username = (TextInputLayout) findViewById(R.id.username);
         email = (TextInputLayout) findViewById(R.id.email);
-        pass = (TextInputLayout) findViewById(R.id.password);
-//        phonenumber = (TextInputLayout) findViewById(R.id.phonenumber);
-//        firstName = (EditText) findViewById(R.id.firstname);
-//        lastName = (TextInputLayout) findViewById(R.id.lasttname);
+        password = (TextInputLayout) findViewById(R.id.password);
+        phoneNumber = (TextInputLayout) findViewById(R.id.phoneNumber);
         confirmPass = (TextInputLayout) findViewById(R.id.confirmPassword);
-//        male = (RadioButton) findViewById(R.id.male);
-//        female = (RadioButton) findViewById(R.id.female);
-//        male.setChecked(true);
-        Button signup = (Button) findViewById(R.id.signup);
+        signup = (Button) findViewById(R.id.signup);
 
-        username.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+        validteInput();
+
+        signup.setOnClickListener(view -> {
+
+            boolean allFieldsValid = true;
+            String fullNameStr = fullName.getEditText().getText().toString();
+            String usernameStr = username.getEditText().getText().toString();
+            String emailStr = email.getEditText().getText().toString();
+            String phoneNumberStr = phoneNumber.getEditText().getText().toString();
+            String passStr = password.getEditText().getText().toString();
+            String confirmPassStr = confirmPass.getEditText().getText().toString();
+
+            Log.i(tag, "signup" + passStr + " " + confirmPassStr);
+            allFieldsValid = validateSignInInput(allFieldsValid, fullNameStr, usernameStr, emailStr, phoneNumberStr, passStr, confirmPassStr);
+
+            if (allFieldsValid && passStr.equals(confirmPassStr)) {
+
+
+                rootNode = FirebaseDatabase.getInstance();
+                reference = rootNode.getReference("users");
+
+                UserModel userModel = new UserModel(fullNameStr, usernameStr, emailStr, passStr, phoneNumberStr);
+
+                reference.child(usernameStr).setValue(userModel);
+
+                session.createUserLoginSession(userModel.getUsername(), userModel.getFullName(),
+                        userModel.getEmail(), userModel.getPhoneNumber(), userModel.getPassword(), String.valueOf(new Date()), null);
+
+                Intent mainPage = new Intent(getApplicationContext(), MainPageActivity.class);
+                startActivity(mainPage);
+                finish();
+
+                // Bitmap bitmap = BitmapFactory.decodeByteArray(newUser.getImageData(), 0, newUser.getImageData().length);
+                // profileImg.setImageBitmap(bitmap);
+            } else {
+                confirmPass.setError("Password not match");
+            }
+        });
+
+    }
+
+    private boolean validateSignInInput(boolean allFieldsValid, String fullNameStr, String usernameStr, String emailStr, String phoneNumberStr, String passStr, String confirmPassStr) {
+        if (fullNameStr.isEmpty()) {
+            fullName.setError("This field is necessary");
+            allFieldsValid = false;
+        } else {
+            fullName.setError(null);
+            fullName.setErrorEnabled(false);
+        }
+
+        if (usernameStr.isEmpty()) {
+            username.setError("This field is necessary");
+            allFieldsValid = false;
+        } else {
+            username.setError(null);
+            username.setErrorEnabled(false);
+        }
+        if (emailStr.isEmpty()) {
+            email.setError("This field is necessary");
+            allFieldsValid = false;
+        } else {
+            email.setError(null);
+            email.setErrorEnabled(false);
+        }
+        if (phoneNumberStr.isEmpty()) {
+            phoneNumber.setError("This field is necessary");
+            allFieldsValid = false;
+        } else {
+            phoneNumber.setError(null);
+            phoneNumber.setErrorEnabled(false);
+        }
+        if (passStr.isEmpty()) {
+            password.setError("This field is necessary");
+            allFieldsValid = false;
+        } else {
+            password.setError(null);
+            password.setErrorEnabled(false);
+        }
+        if (confirmPassStr.isEmpty()) {
+            confirmPass.setError("This field is necessary");
+            allFieldsValid = false;
+        } else {
+            confirmPass.setError(null);
+            confirmPass.setErrorEnabled(false);
+        }
+        return allFieldsValid;
+    }
+
+    private void validteInput() {
+        username.getEditText().setOnFocusChangeListener((view, focused) -> {
+            if (!focused) {
+                Pattern pattern = Pattern.compile("^(?=.{4,20}$)(?![_.'])(?!.*[_.]{2})[a-zA-Z0-9._]+(?<![_.])$");
+                if (!pattern.matcher(username.getEditText().getText()).matches()) {
+                    username.setError("Username is in incorrect format");
+                } else {
+                    username.setError(null);
+                    username.setErrorEnabled(false);
+                }
+            }
+        });
+        phoneNumber.getEditText().setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View view, boolean focused) {
                 if (!focused) {
-                    Pattern pattern = Pattern.compile("^(?=.{4,20}$)(?![_.'])(?!.*[_.]{2})[a-zA-Z0-9._]+(?<![_.])$");
-                    if (!pattern.matcher(username.getEditText().getText()).matches()) {
-                        username.setError("Username is in incorrect format");
+                    if (!Patterns.PHONE.matcher(phoneNumber.getEditText().getText()).matches()) {
+                        phoneNumber.setError("Phone number is in incorrect format");
+                    } else {
+                        phoneNumber.setError(null);
+                        phoneNumber.setErrorEnabled(false);
                     }
                 }
             }
         });
-//        pass.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-//            @Override
-//            public void onFocusChange(View view, boolean focused) {
-//                if (!focused) {
-//                    if (pass.getEditText().getText().length()<6) {
-//                        pass.setError("password is too short");
-//                    }
-//                }
-//            }
-//        });
-//        phonenumber.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-//            @Override
-//            public void onFocusChange(View view, boolean focused) {
-//                if (!focused) {
-//                    if (!Patterns.PHONE.matcher(phonenumber.getEditText().getText()).matches()) {
-//                        phonenumber.setError("Phone number is in incorrect format");
-//                    }
-//                }
-//            }
-//        });
-//        email.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-//            @Override
-//            public void onFocusChange(View view, boolean focused) {
-//                if (!focused) {
-//                    if (!Patterns.EMAIL_ADDRESS.matcher(email.getEditText().getText()).matches()) {
-//                        email.setError("Email is in incorrect format");
-//                    }
-//                }
-//            }
-//        });
-        if (signup != null) {
-            signup.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-
-
-                    passStr = pass.getEditText().getText().toString();
-                    confirmPassStr = confirmPass.getEditText().getText().toString();
-                    Log.i(tag, "signup" + passStr + " " + confirmPassStr);
-
-                    if (passStr.equals(confirmPassStr)) {
-                        UserModel newUser = createNewUser();
-                        if (newUser != null) ;
-                        signup(newUser);
-
-                        // Bitmap bitmap = BitmapFactory.decodeByteArray(newUser.getImageData(), 0, newUser.getImageData().length);
-                        // profileImg.setImageBitmap(bitmap);
-                    } else {
-                        confirmPass.setError("Password not match ");
-                    }
+        password.getEditText().setOnFocusChangeListener((view, focused) -> {
+            if (!focused) {
+                if (password.getEditText().getText().length() < 6) {
+                    password.setError("password is too short");
                 }
-            });
-        }
-//        profileImg = (ImageView) findViewById(R.id.profileImage);
-//        profileImg.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                getImage();
-//            }
-//        });
-        progressDialog = new ProgressDialog(SignupActivity.this);
-
+            }
+        });
+        email.getEditText().setOnFocusChangeListener((view, focused) -> {
+            if (!focused) {
+                if (!Patterns.EMAIL_ADDRESS.matcher(email.getEditText().getText()).matches()) {
+                    email.setError("Email is in incorrect format");
+                } else {
+                    email.setError(null);
+                    email.setErrorEnabled(false);
+                }
+            }
+        });
     }
 
     public void onLoginClick(View view) {
@@ -168,144 +212,6 @@ public class SignupActivity extends AppCompatActivity {
 
     }
 
-
-    private void signup(final UserModel newUser)//
-    {
-        // UserController user = new UserController(this);
-        //create user in the server
-        //   String signupRespnoce = user.createUser(progressDialog, newUser);
-
-//        requestHandler.createUser(new RequestHandler.VolleyCallback() {
-//            @Override
-//            public void onSuccess(String result) {
-//                Log.i(tag, result);
-//                try {
-//                    //log in after signup
-//                    JSONObject jsonresponce = new JSONObject(result);
-//
-//                    String res = jsonresponce.getString("message");
-//                    if (res.equals("Account created successfly.")) {
-//                        UserController user = UserController.getIns();
-//                        UserController.init(getApplicationContext());
-//
-//                        boolean loginResult = user.login(progressDialog, newUser.getUsername(), newUser.getPassword());//get log in result from the username and password from the server
-//                        if (loginResult) {
-//                            Log.i(tag, "log in successful");
-//                            //    Log.i(tag, "the resulting token is restored from preferences" + user.getToken());
-//
-//                            session.createUserLoginSession(newUser.getUsername());
-//                            Intent in = new Intent(SignupActivity.this, MainPageActivity.class);
-//                            startActivity(in);
-//                            setResult(RESULT_OK, null);
-//
-//                            finish();
-//
-//                        } else {
-//                            pass.getEditText().setText("");
-//                            Log.i(tag, "log in is unsuccessful");
-//                        }
-//
-//                        Log.i(tag, "    signup  successful");
-//                        //    onBackPressed();
-//                    } else {
-//                        Log.i(tag, "signup is unsuccessful");
-//                    }
-//                    Toast.makeText(getApplicationContext(), res, Toast.LENGTH_SHORT).show();
-//                } catch (JSONException e) {
-//                    e.printStackTrace();
-//                }
-//            }
-//
-//            @Override
-//            public void onSuccess(JSONObject result) {
-//
-//            }
-//
-//            @Override
-//            public void onError() {
-//
-//            }
-//        }, newUser);
-        Log.i(tag, "Trying to sign in");
-
-    }
-
-    private UserModel createNewUser() {
-
-        String usernameStr = username.getEditText().getText().toString();
-        String emailStr = email.getEditText().getText().toString();
-//        String phonenumberStr = phonenumber.getEditText().getText().toString();
-//        String firstNameStr = firstName.getEditText().getText().toString();
-//        String lastNameStr = lastName.getEditText().getText().toString();
-
-        if (usernameStr.isEmpty()) {
-            username.setError("This field is necessary ");
-        }
-        if (emailStr.isEmpty()) {
-            email.setError("This field is necessary ");
-        }
-        if (passStr.isEmpty()) {
-            pass.setError("This field is necessary ");
-        }
-        if (confirmPassStr.isEmpty()) {
-            confirmPass.setError("This field is necessary ");
-        }
-//        if (firstNameStr.isEmpty()) {
-//            firstName.setError("This field is necessary ");
-//        }
-//        if (lastNameStr.isEmpty()) {
-//            lastName.setError("This field is necessary ");
-//        }
-//        if (phonenumberStr.isEmpty()) {
-//            phonenumber.setError("This field is necessary ");
-//        }
-
-        UserModel newUser = new UserModel();
-        newUser.setUsername(usernameStr);
-//        newUser.setFirstname(firstNameStr);
-//        newUser.setLastname(lastNameStr);
-        newUser.setEmail(emailStr);
-        newUser.setPassword(passStr);
-//        newUser.setPhonenumber(phonenumberStr);
-        if (pathToImage != null) {
-            Log.i(tag, "path to image  " + pathToImage);
-            //get the image file and convert it to bitmap
-            Bitmap bitmap = BitmapFactory.decodeFile(pathToImage);
-            // change the format of the image compressed
-            // now it is set up to 640 x 480;
-            Bitmap bmpCompressed = Bitmap.createScaledBitmap(bitmap, 640, 480, true);
-            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-            // CompressFormat set up to JPG, you can change to PNG or whatever we want;
-            bmpCompressed.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream);
-            //
-            byte[] data = byteArrayOutputStream.toByteArray();
-            encodedString = Base64.encodeToString(data, Base64.DEFAULT);
-
-            newUser.setImageData(data);
-        } else {
-            newUser.setImageData(null);
-
-        }
-        return newUser;
-    }
-
-    private void getImage() {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED
-                || ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED
-                || ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-            if (ActivityCompat.shouldShowRequestPermissionRationale(SignupActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE))
-                Toast.makeText(this, "External Storage permission required", Toast.LENGTH_SHORT);
-            if (ActivityCompat.shouldShowRequestPermissionRationale(SignupActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE))
-                Toast.makeText(this, "External Storage permission required", Toast.LENGTH_SHORT);
-            else {
-                ActivityCompat.requestPermissions(SignupActivity.this,
-                        new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                        MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE);
-            }
-        } else {
-            selectImage();
-        }
-    }
 
     private File createImageFile() throws IOException {
         // Create an image file name

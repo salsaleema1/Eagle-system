@@ -1,33 +1,34 @@
 {
   "project_info": {
-    "project_number": "35673555406",
-    "project_id": "workos-4d226",
-    "storage_bucket": "workos-4d226.appspot.com"
+    "project_number": "305700844312",
+    "firebase_url": "https://workos-1618921494959-default-rtdb.firebaseio.com",
+    "project_id": "workos-1618921494959",
+    "storage_bucket": "workos-1618921494959.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:35673555406:android:71dab73f3aaaa6c1f4ab9f",
+        "mobilesdk_app_id": "1:305700844312:android:8d825ed3812418c23ae46d",
         "android_client_info": {
           "package_name": "com.workos"
         }
       },
       "oauth_client": [
         {
-          "client_id": "35673555406-l4mpna3egr42tmce47f8pbrdiu3s6p4u.apps.googleusercontent.com",
+          "client_id": "305700844312-hg0nvil2sunt2r54578rbtlo4alian3s.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyDQrDe9Ts38fPw_xybH7bCBsJ9mVjj2jxs"
+          "current_key": "AIzaSyARdtKkleseBrlV2NI4h5b5c_541ebGHDE"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "35673555406-l4mpna3egr42tmce47f8pbrdiu3s6p4u.apps.googleusercontent.com",
+              "client_id": "305700844312-hg0nvil2sunt2r54578rbtlo4alian3s.apps.googleusercontent.com",
               "client_type": 3
             }
           ]

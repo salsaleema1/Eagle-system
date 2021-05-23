@@ -15,11 +15,9 @@
     <string name="approve">APROVE</string>
     <string name="ignore">IGNORE</string>
     <string name="friend_req_name">Friend Requests</string>
-    <string name="search_name">Search</string>
     <string name="signup_name">SignUp</string>
     <string name="login_name">Login</string>
     <string name="user_name">Login</string>
-    <string name="work_os_app">WorkOS App</string>
     <string name="enter_your_message">Enter your message</string>
     <string name="title_activity_login">LoginActivity</string>
     <string name="prompt_email">Email</string>
@@ -30,4 +28,23 @@
     <string name="invalid_username">Not a valid username</string>
     <string name="invalid_password">Password must be >5 characters</string>
     <string name="login_failed">"Login failed"</string>
+    <string name="title_activity_navigation">NavigationActivity</string>
+    <string name="nav_header_title">Android Studio</string>
+    <string name="nav_header_subtitle">android.studio@android.com</string>
+    <string name="nav_header_desc">Navigation header</string>
+
+    <string name="menu_home">Home</string>
+    <string name="title_activity_bottom_navigation">MainActivity</string>
+    <string name="title_home">Home</string>
+    <string name="title_issues">Issues</string>
+    <string name="title_Projects">Projects</string>
+    <string name="title_activity_side_navigation">sideNavigationActivity</string>
+
+    <string-array name="task_status_array">
+        <item>Backlog</item>
+        <item>InProgress</item>
+        <item>Pending</item>
+        <item>Testing</item>
+        <item>Done</item>
+    </string-array>
 </resources>
